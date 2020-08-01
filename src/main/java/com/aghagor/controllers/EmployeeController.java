@@ -1,5 +1,6 @@
 package com.aghagor.controllers;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,11 @@ public class EmployeeController {
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public String save(@ModelAttribute("emp") Employee employee) {
-        dao.save(employee);
+        try {
+            dao.save(employee);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         return "redirect:/viewemp";
     }
 
@@ -47,14 +52,22 @@ public class EmployeeController {
 
     @RequestMapping(value = "{id}/editsave", method = RequestMethod.POST)
     public String editsave(@ModelAttribute("emp") Employee employee) {
-        dao.update(employee);
+        try {
+            dao.update(employee);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         return "redirect:/viewemp";
     }
 
 
     @RequestMapping(value = "/deleteemp/{id}", method = RequestMethod.GET)
     public String delete(@PathVariable int id) {
-        dao.delete(id);
+        try {
+            dao.delete(id);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         return "redirect:/viewemp";
     }
 }  

@@ -1,9 +1,12 @@
 package com.aghagor.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.aghagor.ConnectionFactory;
 import com.aghagor.model.Employee;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,22 +19,36 @@ public class EmployeeDao {
         this.template = template;
     }
 
-    public int save(Employee p) {
-        String sql = "insert into Emp99(name,salary,destination) values('" + p.getName()
-                + "'," + p.getSalary() + ",'" + p.getDestination() + "')";
-//    String sql="insert into Emp99(name,salary,destination) values('Gor',100000,'Vanadzor')";
-        return template.update(sql);
+    public void save(Employee p) throws SQLException {
+        String sql = "insert into Emp99(name,salary,destination) values(?,?,?);";
+        try (Connection connection = ConnectionFactory.getInstance().openConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, p.getName());
+            preparedStatement.setFloat(2, p.getSalary());
+            preparedStatement.setString(3, p.getDestination());
+            preparedStatement.execute();
+        }
     }
 
-    public int update(Employee p) {
-        String sql = "update Emp99 set name='" + p.getName() + "', salary='" + p.getSalary()
-                + "',destination='" + p.getDestination() + "' where id=" + p.getId() + "";
-        return template.update(sql);
+    public boolean update(Employee p) throws SQLException {
+        String sql = "update Emp99 set name=?, salary=?,destination=? where id=?;";
+        try (Connection connection = ConnectionFactory.getInstance().openConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, p.getName());
+            preparedStatement.setFloat(2, p.getSalary());
+            preparedStatement.setString(3, p.getDestination());
+            preparedStatement.setInt(4, p.getId());
+            return preparedStatement.executeUpdate() > 0;
+        }
     }
 
-    public int delete(int id) {
-        String sql = "delete from Emp99 where id=" + id + "";
-        return template.update(sql);
+    public boolean delete(int id) throws SQLException {
+        String sql = "delete from Emp99 where id=?";
+        try (Connection connection = ConnectionFactory.getInstance().openConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, id);
+            return preparedStatement.executeUpdate() > 0;
+        }
     }
 
     public Employee getEmpById(int id) {
